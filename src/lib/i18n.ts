@@ -69,7 +69,11 @@ export type MessageKey =
   | "initializing"
   | "removeProject"
   | "initSuccess"
-  | "noGitBadge";
+  | "noGitBadge"
+  | "copyCommitId"
+  | "copyCommitMsg"
+  | "copiedCommitId"
+  | "copiedCommitMsg";
 
 const vi: Record<MessageKey, string> = {
   tabProjects: "Dự án",
@@ -140,6 +144,10 @@ const vi: Record<MessageKey, string> = {
   removeProject: "Xóa khỏi danh sách",
   initSuccess: "Đã khởi tạo Git repository thành công!",
   noGitBadge: "Chưa có Git",
+  copyCommitId: "Sao chép commit ID (hash)",
+  copyCommitMsg: "Sao chép commit message",
+  copiedCommitId: "Đã chép commit ID",
+  copiedCommitMsg: "Đã chép message",
 };
 
 const en: Record<MessageKey, string> = {
@@ -211,6 +219,10 @@ const en: Record<MessageKey, string> = {
   removeProject: "Remove from list",
   initSuccess: "Git repository initialized successfully!",
   noGitBadge: "No Git",
+  copyCommitId: "Copy commit ID (hash)",
+  copyCommitMsg: "Copy commit message",
+  copiedCommitId: "Copied commit ID",
+  copiedCommitMsg: "Copied message",
 };
 
 const messages: Record<Locale, Record<MessageKey, string>> = { vi, en };

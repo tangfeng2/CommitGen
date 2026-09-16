@@ -274,25 +274,6 @@ pub fn git_log(cwd: &str, limit: usize) -> Result<Vec<Commit>, String> {
         .collect())
 }
 
-fn head_hash(cwd: &str) -> String {
-    git(cwd, &["rev-parse", "HEAD"]).map(|s| s.trim().to_string()).unwrap_or_default()
-}
-
-fn spectral(deg: usize, max_degree: usize) -> (f32, String) {
-    let ratio = deg as f32 / max_degree.max(1) as f32;
-    let size = 2.0 + ratio * 10.0;
-    let color = match ratio {
-        r if r < 0.06 => "#ff6050".to_string(),
-        r if r < 0.16 => "#ffa060".to_string(),
-        r if r < 0.34 => "#ffe080".to_string(),
-        r if r < 0.56 => "#fff0c0".to_string(),
-        r if r < 0.78 => "#e8e8ff".to_string(),
-        r if r < 0.95 => "#c0d0ff".to_string(),
-        _ => "#80a0ff".to_string(),
-    };
-    (size, color)
-}
-
 /// Old/new content of each file changed by a commit (A/M/D), VSCode-git style.
 pub fn git_show_commit(cwd: &str, hash: &str) -> Result<Vec<FileDiff>, String> {
     let rev = hash.trim();

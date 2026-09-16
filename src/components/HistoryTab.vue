@@ -77,6 +77,20 @@ function copyPath(p: string) {
   }, 1500);
 }
 
+const copiedType = ref<string | null>(null);
+let commitCopyTimer: any;
+
+function copyText(text: string, type: string) {
+  navigator.clipboard.writeText(text);
+  copiedType.value = type;
+  clearTimeout(commitCopyTimer);
+  commitCopyTimer = setTimeout(() => {
+    if (copiedType.value === type) {
+      copiedType.value = null;
+    }
+  }, 1800);
+}
+
 function toggleExpandAll() {
   if (!currentDiffFile.value) return;
   const mode = diffMode.value === DiffModeEnum.Unified ? "unified" : "split";
@@ -296,20 +310,70 @@ onMounted(async () => {
         </div>
         <div v-if="loadingDiff" class="px-3 py-2 text-[11px] text-foreground/40">{{ t("loadingDiff") }}</div>
         <div class="flex-1 overflow-y-auto">
-          <button
+          <div
             v-for="c in commits"
             :key="c.hash"
-            class="w-full text-left px-3 py-2 border-b border-border/10 hover:bg-white/[0.03] transition-colors"
+            class="group w-full text-left px-3 py-2.5 border-b border-border/10 hover:bg-white/[0.03] transition-colors cursor-pointer relative"
             :class="c.hash === selectedHash ? 'bg-primary/10 border-l-2 border-l-primary' : ''"
             @click="selectCommit(c.hash)"
           >
-            <div class="text-[12px] text-white/90 truncate">{{ c.subject }}</div>
-            <div class="text-[11px] text-white/35 mt-0.5 flex items-center justify-between gap-2">
-              <span class="font-mono text-primary/70 shrink-0">{{ c.shortHash }}</span>
+            <div class="flex items-start justify-between gap-1.5">
+              <div class="text-[12px] text-white/90 truncate flex-1 font-medium leading-snug" :title="c.subject">
+                {{ c.subject }}
+              </div>
+              <!-- Action buttons on hover -->
+              <div class="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 shrink-0 transition-opacity -mr-1 -mt-0.5 bg-[#0b161b]/95 px-1 py-0.5 rounded border border-border/40 shadow-sm">
+                <!-- Copy message -->
+                <button
+                  type="button"
+                  class="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/90 transition-colors"
+                  :title="copiedType === c.hash + '-msg' ? t('copiedCommitMsg') : t('copyCommitMsg')"
+                  @click.stop="copyText(c.subject, c.hash + '-msg')"
+                >
+                  <svg v-if="copiedType !== c.hash + '-msg'" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  <svg v-else class="w-3 h-3 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </button>
+                <!-- Copy ID (hash) -->
+                <button
+                  type="button"
+                  class="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white/90 transition-colors"
+                  :title="copiedType === c.hash + '-id' ? t('copiedCommitId') : t('copyCommitId')"
+                  @click.stop="copyText(c.hash, c.hash + '-id')"
+                >
+                  <svg v-if="copiedType !== c.hash + '-id'" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  <svg v-else class="w-3 h-3 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="text-[11px] text-white/35 mt-1 flex items-center justify-between gap-2">
+              <button
+                type="button"
+                class="font-mono text-primary/80 hover:text-primary hover:underline shrink-0 flex items-center gap-1 group/btn"
+                :title="copiedType === c.hash + '-id' ? t('copiedCommitId') : t('copyCommitId')"
+                @click.stop="copyText(c.hash, c.hash + '-id')"
+              >
+                <span>{{ c.shortHash }}</span>
+                <span v-if="copiedType === c.hash + '-id'" class="text-[10px] text-emerald-400 font-sans">✓ {{ t("copiedCommitId") }}</span>
+                <svg v-else class="w-2.5 h-2.5 opacity-40 group-hover/btn:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+              </button>
               <span class="truncate">{{ c.author }}</span>
             </div>
+
             <div class="text-[10px] text-white/25 mt-0.5">{{ fmtDate(c.date) }}</div>
-          </button>
+          </div>
         </div>
       </div>
 
@@ -319,6 +383,56 @@ onMounted(async () => {
           {{ t("selectCommitPrompt") }}
         </div>
         <template v-else>
+          <!-- Selected Commit Summary Header -->
+          <div class="px-4 py-2.5 bg-[#121c22] border-b border-border/30 shrink-0 flex items-center justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <div class="text-[13px] font-semibold text-white/95 truncate" :title="selectedCommit.subject">
+                {{ selectedCommit.subject }}
+              </div>
+              <div class="flex items-center gap-2.5 text-[11px] text-white/40 mt-0.5 font-mono">
+                <span class="text-primary/90 font-bold">{{ selectedCommit.shortHash }}</span>
+                <span>•</span>
+                <span class="text-white/60">{{ selectedCommit.author }}</span>
+                <span>•</span>
+                <span>{{ fmtDate(selectedCommit.date) }}</span>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                class="px-2.5 py-1 rounded-md bg-white/[0.04] hover:bg-white/[0.08] text-white/70 hover:text-white text-[11px] font-mono flex items-center gap-1.5 transition-colors border border-border/30"
+                :title="t('copyCommitId')"
+                @click="copyText(selectedCommit.hash, 'header-id')"
+              >
+                <svg v-if="copiedType !== 'header-id'" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                <svg v-else class="w-3 h-3 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>{{ copiedType === 'header-id' ? t('copiedCommitId') : 'Copy ID' }}</span>
+              </button>
+
+              <button
+                type="button"
+                class="px-2.5 py-1 rounded-md bg-white/[0.04] hover:bg-white/[0.08] text-white/70 hover:text-white text-[11px] flex items-center gap-1.5 transition-colors border border-border/30"
+                :title="t('copyCommitMsg')"
+                @click="copyText(selectedCommit.subject, 'header-msg')"
+              >
+                <svg v-if="copiedType !== 'header-msg'" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                <svg v-else class="w-3 h-3 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>{{ copiedType === 'header-msg' ? t('copiedCommitMsg') : 'Copy Message' }}</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Changed Files Tabs -->
           <div class="px-3 py-1.5 border-b border-border/30 shrink-0 flex items-center gap-2 overflow-x-auto bg-[#0a1216]/70">
             <span class="text-[10px] text-foreground/40 uppercase tracking-wider shrink-0">{{ t("files") }}</span>
