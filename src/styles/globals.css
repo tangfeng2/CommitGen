@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #0a161a;
+  --color-foreground: #e0eded;
+  --color-card: #0e2028;
+  --color-card-foreground: #e0eded;
+  --color-popover: #0e2028;
+  --color-popover-foreground: #e0eded;
+  --color-primary: #1DA27E;
+  --color-primary-foreground: #0a161a;
+  --color-secondary: #0f1e24;
+  --color-secondary-foreground: #b0d4d4;
+  --color-muted: #0f1e24;
+  --color-muted-foreground: #6a9e9e;
+  --color-accent: #1C8585;
+  --color-accent-foreground: #e0eded;
+  --color-destructive: #e05252;
+  --color-destructive-foreground: #0a161a;
+  --color-border: #1a3a4030;
+  --color-input: #0c1c2260;
+  --color-ring: #1DA27E;
+  --radius: 0.75rem;
+  --color-sidebar: #0c1a20;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.code-pane .hljs {
+  color: #c9d1d9;
+  background: transparent;
+}
+.code-pane .hljs-comment,
+.code-pane .hljs-quote {
+  color: #8b949e;
+  font-style: italic;
+}
+.code-pane .hljs-keyword,
+.code-pane .hljs-literal,
+.code-pane .hljs-selector-tag,
+.code-pane .hljs-symbol,
+.code-pane .hljs-template-tag {
+  color: #ff7b72;
+}
+.code-pane .hljs-string,
+.code-pane .hljs-regexp,
+.code-pane .hljs-addition,
+.code-pane .hljs-attribute {
+  color: #a5d6ff;
+}
+.code-pane .hljs-title,
+.code-pane .hljs-title.function_,
+.code-pane .hljs-section,
+.code-pane .hljs-type {
+  color: #d2a8ff;
+}
+.code-pane .hljs-number,
+.code-pane .hljs-boolean,
+.code-pane .hljs-char,
+.code-pane .hljs-selector-attr {
+  color: #79c0ff;
+}
+.code-pane .hljs-variable,
+.code-pane .hljs-params,
+.code-pane .hljs-built_in,
+.code-pane .hljs-property {
+  color: #ffa657;
+}
+.code-pane .hljs-title.class_ {
+  color: #f0883e;
+}
+.code-pane .hljs-tag,
+.code-pane .hljs-meta {
+  color: #7ee787;
+}
+.code-pane .hljs-deletion {
+  color: #ffa198;
+}
+.code-pane .hljs-emphasis {
+  font-style: italic;
+}
+.code-pane .hljs-strong {
+  font-weight: 600;
+}
