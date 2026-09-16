@@ -25,6 +25,7 @@ const note = ref("");
 const message = ref("");
 const generating = ref(false);
 const committing = ref(false);
+const pushing = ref(false);
 const initializing = ref(false);
 const busy = ref(false);
 const errorMsg = ref("");
@@ -36,10 +37,11 @@ const isNotGitRepo = computed(() => {
   return err.includes("not a git repository") || err.includes("không phải là thư mục git");
 });
 
+const hasAhead = computed(() => Boolean(status.value?.ahead_behind && status.value.ahead_behind.includes("ahead")));
 const providerName = computed(() => providers.value.find((p) => p.id === providerId.value)?.name ?? t("noProviderSelected"));
 const hasChanges = computed(() => status.value !== null && !status.value.clean);
-const canGenerate = computed(() => !generating.value && !committing.value && Boolean(providerId.value) && hasChanges.value);
-const canCommit = computed(() => !generating.value && !committing.value && message.value.trim().length > 0);
+const canGenerate = computed(() => !generating.value && !committing.value && !pushing.value && Boolean(providerId.value) && hasChanges.value);
+const canCommit = computed(() => !generating.value && !committing.value && !pushing.value && message.value.trim().length > 0);
 
 async function loadStatus() {
   try {
@@ -131,6 +133,22 @@ async function commit() {
   }
 }
 
+async function push() {
+  pushing.value = true;
+  errorMsg.value = "";
+  infoMsg.value = "";
+  try {
+    await api.gitPush(props.path);
+    infoMsg.value = t("pushed");
+    await loadStatus();
+    emit("committed");
+  } catch (e: any) {
+    errorMsg.value = e?.message || String(e);
+  } finally {
+    pushing.value = false;
+  }
+}
+
 onMounted(async () => {
   busy.value = true;
   await Promise.all([loadStatus(), loadProviders()]);
@@ -167,7 +185,24 @@ function fileGlyph(f: { index: string; worktree: string }) {
           <span class="text-[15px] font-semibold text-foreground">{{ name }}</span>
           <Badge v-if="!isNotGitRepo" variant="secondary">{{ status?.branch || "…" }}</Badge>
           <Badge v-else variant="destructive">{{ t("noGitBadge") }}</Badge>
-          <span v-if="status?.ahead_behind" class="text-[11px] text-foreground/30 font-mono">{{ status.ahead_behind }}</span>
+          <span
+            v-if="status?.ahead_behind"
+            class="text-[11px] font-mono px-2 py-0.5 rounded flex items-center gap-1.5"
+            :class="hasAhead ? 'bg-primary/10 text-primary border border-primary/20' : 'text-foreground/35'"
+          >
+            <span>{{ status.ahead_behind }}</span>
+            <button
+              v-if="hasAhead"
+              type="button"
+              class="hover:underline font-bold text-primary flex items-center gap-0.5 ml-0.5 cursor-pointer disabled:opacity-50"
+              :disabled="pushing || busy"
+              :title="t('push')"
+              @click="push"
+            >
+              <span>↑</span>
+              <span>{{ pushing ? '...' : t('push') }}</span>
+            </button>
+          </span>
         </div>
         <div class="text-[11px] text-foreground/30 font-mono truncate mt-0.5">{{ path }}</div>
       </div>
@@ -275,10 +310,32 @@ function fileGlyph(f: { index: string; worktree: string }) {
       <!-- footer -->
       <div class="flex items-center gap-3 px-5 py-3 border-t border-border/30 shrink-0">
         <p v-if="errorMsg" class="flex-1 text-[12px] text-destructive truncate">{{ errorMsg }}</p>
-        <p v-else-if="infoMsg" class="flex-1 text-[12px] text-primary truncate">{{ infoMsg }}</p>
+        <p v-else-if="infoMsg" class="flex-1 text-[12px] text-primary truncate flex items-center gap-2">
+          <span>{{ infoMsg }}</span>
+        </p>
         <p v-else class="flex-1 text-[12px] text-foreground/25 truncate">{{ t("footerHint") }}</p>
-        <Button variant="outline" size="sm" :disabled="busy" @click="loadStatus">{{ t("refresh") }}</Button>
-        <Button variant="default" size="sm" class="whitespace-nowrap" :disabled="!canCommit" @click="commit">
+        <Button variant="outline" size="sm" :disabled="busy || pushing" @click="loadStatus">{{ t("refresh") }}</Button>
+        
+        <!-- Push button -->
+        <Button
+          :variant="hasAhead ? 'default' : 'outline'"
+          size="sm"
+          class="whitespace-nowrap gap-1.5 transition-all"
+          :class="hasAhead ? 'shadow-lg shadow-primary/20' : 'border-border/40 text-foreground/70 hover:text-foreground'"
+          :disabled="pushing || busy"
+          @click="push"
+        >
+          <svg v-if="pushing" class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          <svg v-else class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19V5M5 12l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>{{ pushing ? t("pushing") : (status?.ahead_behind && hasAhead ? `Push (${status.ahead_behind})` : t("push")) }}</span>
+        </Button>
+
+        <Button variant="default" size="sm" class="whitespace-nowrap" :disabled="!canCommit || pushing" @click="commit">
           {{ committing ? t("committing") : t("commit") }}
         </Button>
       </div>

@@ -41,6 +41,10 @@ export async function gitCommit(path: string, message: string): Promise<CommitRe
   return invoke<CommitResult>("git_commit", { path, message });
 }
 
+export async function gitPush(path: string): Promise<string> {
+  return invoke<string>("git_push", { path });
+}
+
 export async function listProviders(): Promise<Provider[]> {
   return invoke<Provider[]>("list_providers");
 }

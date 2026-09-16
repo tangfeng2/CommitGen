@@ -3,6 +3,8 @@ name = "commit-gen"
 version = "0.1.0"
 description = "AI commit message generator for multiple git projects"
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/tangfeng2/CommitGen"
 
 [lib]
 name = "commit_gen_lib"

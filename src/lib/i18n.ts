@@ -31,6 +31,9 @@ export type MessageKey =
   | "refresh"
   | "committing"
   | "commit"
+  | "pushing"
+  | "push"
+  | "pushed"
   | "historyTitle"
   | "reload"
   | "noProjectsHint"
@@ -104,6 +107,9 @@ const vi: Record<MessageKey, string> = {
   refresh: "Làm mới",
   committing: "Đang commit...",
   commit: "Commit",
+  pushing: "Đang push...",
+  push: "Push",
+  pushed: "Đã push thành công!",
   historyTitle: "Lịch sử commit",
   reload: "Tải lại",
   noProjectsHint: "Chưa có dự án nào — thêm dự án ở tab Dự án để xem lịch sử commit.",
@@ -179,6 +185,9 @@ const en: Record<MessageKey, string> = {
   refresh: "Refresh",
   committing: "Committing...",
   commit: "Commit",
+  pushing: "Pushing...",
+  push: "Push",
+  pushed: "Pushed successfully!",
   historyTitle: "Commit history",
   reload: "Reload",
   noProjectsHint: "No projects yet — add one in the Projects tab to view commit history.",

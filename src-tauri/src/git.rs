@@ -338,6 +338,27 @@ pub fn git_commit(cwd: &str, message: &str) -> Result<CommitResult, String> {
     Ok(CommitResult { hash: full, short_hash: short })
 }
 
+pub fn git_push(cwd: &str) -> Result<String, String> {
+    if !git_available() {
+        return Err("Git is not installed".into());
+    }
+    if !is_git_repo(cwd) {
+        return Err("Not a git repository".into());
+    }
+    match git(cwd, &["push"]) {
+        Ok(out) => Ok(out),
+        Err(err) if err.contains("no upstream branch") || err.contains("has no upstream") => {
+            if let Ok(branch) = git(cwd, &["rev-parse", "--abbrev-ref", "HEAD"]).map(|b| b.trim().to_string()) {
+                if !branch.is_empty() && branch != "HEAD" {
+                    return git(cwd, &["push", "-u", "origin", &branch]);
+                }
+            }
+            Err(err)
+        }
+        Err(err) => Err(err),
+    }
+}
+
 pub fn repo_name(cwd: &str) -> String {
     Path::new(cwd)
         .file_name()

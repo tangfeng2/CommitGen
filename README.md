@@ -41,3 +41,7 @@ pnpm tauri build    # Generate installer (NSIS/MSI) in src-tauri/target/release/
 cargo test --manifest-path src-tauri/Cargo.toml   # Run Git workflow tests
 pnpm typecheck                                    # Vue/TS type checking
 ```
+
+## License
+
+This project is open-source software licensed under the [MIT License](LICENSE).

@@ -144,6 +144,13 @@ async fn git_commit(path: String, message: String) -> Result<git::CommitResult, 
 }
 
 #[tauri::command]
+async fn git_push(path: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || git::git_push(&path))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
 fn list_providers(state: State<'_, AppState>) -> Result<Vec<providers::Provider>, String> {
     let cfg = state.config.lock().unwrap();
     Ok(cfg.providers.clone())
@@ -248,6 +255,7 @@ pub fn run() {
             git_log,
             git_show_commit,
             git_commit,
+            git_push,
             list_providers,
             save_provider,
             delete_provider,
