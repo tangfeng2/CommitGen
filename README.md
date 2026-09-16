@@ -2,11 +2,16 @@
 
 AI-powered commit message generator for multiple Git repositories, inspired by Cline's logic (`commit-message-generator.ts` + `utils/git.ts`), built with a modern UI (Vue 3 + Vite + Tailwind).
 
+<p align="center">
+  <img src="docs/assets/demo-projects.png" alt="Projects & AI Commit Generation" width="49%" />
+  <img src="docs/assets/demo-history.png" alt="Commit History & Diff Viewer" width="49%" />
+</p>
+
 ## Features
 
 - **Projects** — Add paths to multiple Git repositories and click on any project to manage it:
   click **"Generate Commit with AI"** → AI generates a commit message into a spacious editor, allowing you to review/edit before clicking **Commit**.
-- **History** — Interactive 3D commit history visualization (parent-child DAG, rotate/pan/zoom with mouse, hash labels, tooltips with subject/author, and "stellar spectral" node coloring based on connectivity).
+- **History & Diff** — Review commit history, inspect side-by-side / unified file diffs, and quickly copy commit hash or message.
 - **AI Providers** — Configure multiple providers compatible with the standard **chat completions API** (OpenAI / OpenRouter / DeepSeek / Groq / local Ollama, etc.), including quick-fill presets, customizable base URL, model name, API key, and system prompt.
 - **Cline-style diff logic** — Prioritizes staged changes, falls back to unstaged changes, and includes untracked files (via `git diff --no-index /dev/null`).
 
